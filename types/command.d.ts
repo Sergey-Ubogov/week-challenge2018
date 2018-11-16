@@ -1,14 +1,5 @@
-import {MoveParameters} from "./parameters/move-parameters";
-import {AccelerateParameters} from "./parameters/accelerate-parameters";
-import {AttackParameters} from "./parameters/attack-parameters";
+import {Accelerate} from "./commands/accelerate";
+import {Attack} from "./commands/attack";
+import {Move} from "./commands/move";
 
-export type Command = {
-    Command: 'MOVE',
-    Parameters: MoveParameters
-} | {
-    Command: 'ACCELERATE',
-    Parameters: AccelerateParameters
-} | {
-    Command: 'ATTACK',
-    Parameters: AttackParameters
-}
+export type Command = Accelerate | Move | Attack

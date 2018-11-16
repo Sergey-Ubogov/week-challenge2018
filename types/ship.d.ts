@@ -1,5 +1,7 @@
 import Vector from "../src/vector";
-import {Block} from "./blocks/block";
+import {EnergyBlock} from "./blocks/energy-block";
+import {GunBlock} from "./blocks/gun-block";
+import {HealthBlock} from "./blocks/health-block";
 
 export type Ship = {
     Id: number,
@@ -7,5 +9,5 @@ export type Ship = {
     Energy: number,
     Position: Vector,
     Velocity: Vector,
-    Equipment: Block[]
+    Equipment: (EnergyBlock | EnergyBlock | GunBlock | HealthBlock)[]
 }

@@ -86,6 +86,42 @@
 /************************************************************************/
 /******/ ({
 
+/***/ "./enums/block.ts":
+/*!************************!*\
+  !*** ./enums/block.ts ***!
+  \************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\r\nObject.defineProperty(exports, \"__esModule\", { value: true });\r\nvar BlockEnum;\r\n(function (BlockEnum) {\r\n    BlockEnum[BlockEnum[\"energyBlock\"] = 0] = \"energyBlock\";\r\n    BlockEnum[BlockEnum[\"blasterBlock\"] = 1] = \"blasterBlock\";\r\n    BlockEnum[BlockEnum[\"engineBlock\"] = 2] = \"engineBlock\";\r\n    BlockEnum[BlockEnum[\"healthBlock\"] = 3] = \"healthBlock\";\r\n})(BlockEnum = exports.BlockEnum || (exports.BlockEnum = {}));\r\n\n\n//# sourceURL=webpack:///./enums/block.ts?");
+
+/***/ }),
+
+/***/ "./src/get-nearest-enemy.ts":
+/*!**********************************!*\
+  !*** ./src/get-nearest-enemy.ts ***!
+  \**********************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\r\nObject.defineProperty(exports, \"__esModule\", { value: true });\r\nconst distance_1 = __webpack_require__(/*! ./helpers/distance */ \"./src/helpers/distance.ts\");\r\nfunction default_1(me, enemies) {\r\n    let nearestEnemy;\r\n    let minDistance = 10000000;\r\n    enemies.forEach(enemy => {\r\n        const distanceToEnemy = distance_1.default(enemy.Position, me.Position);\r\n        if (distanceToEnemy > minDistance)\r\n            return;\r\n        minDistance = distanceToEnemy;\r\n        nearestEnemy = enemy;\r\n    });\r\n    if (!nearestEnemy)\r\n        nearestEnemy = enemies[0];\r\n    return nearestEnemy;\r\n}\r\nexports.default = default_1;\r\n\n\n//# sourceURL=webpack:///./src/get-nearest-enemy.ts?");
+
+/***/ }),
+
+/***/ "./src/helpers/distance.ts":
+/*!*********************************!*\
+  !*** ./src/helpers/distance.ts ***!
+  \*********************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\r\nObject.defineProperty(exports, \"__esModule\", { value: true });\r\nfunction default_1(v1, v2) {\r\n    return Math.sqrt(Math.pow(v1.x - v2.x, 2) +\r\n        Math.pow(v1.y - v2.y, 2) +\r\n        Math.pow(v1.z - v2.z, 2));\r\n}\r\nexports.default = default_1;\r\n\n\n//# sourceURL=webpack:///./src/helpers/distance.ts?");
+
+/***/ }),
+
 /***/ "./src/index.ts":
 /*!**********************!*\
   !*** ./src/index.ts ***!
@@ -94,7 +130,7 @@
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-eval("\r\nObject.defineProperty(exports, \"__esModule\", { value: true });\r\nconst readline = __webpack_require__(/*! readline */ \"readline\");\r\nconst rl = readline.createInterface(process.stdin, process.stdout);\r\nrl.on('line', function (line) {\r\n    console.info(nextStep(JSON.parse(line)));\r\n});\r\nfunction nextStep(state) {\r\n    return state;\r\n}\r\n\n\n//# sourceURL=webpack:///./src/index.ts?");
+eval("\r\nObject.defineProperty(exports, \"__esModule\", { value: true });\r\nconst block_1 = __webpack_require__(/*! ../enums/block */ \"./enums/block.ts\");\r\nconst get_nearest_enemy_1 = __webpack_require__(/*! ./get-nearest-enemy */ \"./src/get-nearest-enemy.ts\");\r\nconst readline = __webpack_require__(/*! readline */ \"readline\");\r\nconst rl = readline.createInterface(process.stdin, process.stdout);\r\nrl.on('line', function (line) {\r\n    if (line === '{}')\r\n        console.info('{}');\r\n    else\r\n        console.info(JSON.stringify(nextStep(JSON.parse(line))));\r\n});\r\nfunction nextStep(state) {\r\n    const userCommands = state.My.map(ship => {\r\n        const blasterBlock = ship.Equipment.filter(block => block.Type === block_1.BlockEnum.blasterBlock)[0];\r\n        const blasterName = blasterBlock.Name;\r\n        return {\r\n            Command: 'ATTACK',\r\n            Parameters: {\r\n                Id: ship.Id,\r\n                Name: blasterName,\r\n                Target: get_nearest_enemy_1.default(ship, state.Opponent).Position\r\n            },\r\n        };\r\n    });\r\n    return {\r\n        UserCommands: userCommands,\r\n        Message: 'my_message'\r\n    };\r\n}\r\n\n\n//# sourceURL=webpack:///./src/index.ts?");
 
 /***/ }),
 

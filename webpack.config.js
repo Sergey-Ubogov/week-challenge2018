@@ -30,6 +30,9 @@ const webpackConfig = {
         Buffer: false,
         __filename: false,
         __dirname: false,
+    },
+    resolve: {
+        extensions: ['.ts', '.js', '.json']
     }
 };
 
