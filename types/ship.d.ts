@@ -1,5 +1,5 @@
 import Vector from "../src/vector";
-import {Block} from "./block";
+import {Block} from "./blocks/block";
 
 export type Ship = {
     Id: number,
