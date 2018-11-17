@@ -1,7 +1,7 @@
-import Vector from "../../src/vector";
+import Vector from "../../src/classes/Vector";
 
 export type AttackParameters = {
     Id: number,
     Name: string,
-    Target: Vector
+    Target: string
 }

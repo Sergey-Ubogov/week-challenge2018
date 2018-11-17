@@ -1,6 +1,6 @@
 import {Block} from "./block";
 
-export type GunBlock = Block & {
+export type BlasterBlock = Block & {
     Damage: number,
     EnergyPrice: number,
     Radius: number,

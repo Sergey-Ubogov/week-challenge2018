@@ -1,7 +1,7 @@
-import Vector from "../src/vector";
+import Vector from "../src/classes/Vector";
 
 export type FireInfo = {
-    Source: Vector,
-    Target: Vector,
+    Source: string,
+    Target: string,
     EffectType: 0
 }

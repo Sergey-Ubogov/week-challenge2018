@@ -1,6 +1,6 @@
-import Vector from "../../src/vector";
+import Vector from "../../src/classes/Vector";
 
 export type AccelerateParameters = {
     Id: number,
-    Vector: Vector
+    Vector: string
 }
