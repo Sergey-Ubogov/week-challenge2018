@@ -87,10 +87,9 @@ export default class Game {
         let enemyForAll = this.getTargetForEachShip(this.MyShips, this.OpponentShips); // берем противника, до которого может дотянуться большинство
         if (!enemyForAll) enemyForAll = this.getNearestForAll(this.MyShips, this.OpponentShips); // если такого нет(например если мы в самом начале), то берем ближайшего противника для большинства наших кораблей
 
-        const userCommands = this.MyShips.map(ship => {
-
-            return ship.getBestAction(this.MyShips, this.OpponentShips, this.FireInfos, enemyForAll);
-        });
+        const userCommands = this.MyShips.reduce((allActions, ship) => {
+            return allActions.concat(ship.getActions(this.MyShips, this.OpponentShips, this.FireInfos, enemyForAll));
+        }, []);
 
         let debugMessage = userCommands.reduce((str, command)=> {
             return str + '  ' + `id: ${command.Parameters.Id}, command: ${command.Command}, target: ${command.Parameters.Target}`;

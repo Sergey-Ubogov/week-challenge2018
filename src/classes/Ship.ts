@@ -109,23 +109,26 @@ export default class Ship extends BaseShip {
         // поэтому скорость будет axisVelocity, axisVelocity - 1, ..., 1
     }
 
-    getBestAction(myShips: Ship[], enemies: BaseShip[], fireInfos: FireInfo[], nearestForAll: BaseShip) {
+    getActions(myShips: Ship[], enemies: BaseShip[], fireInfos: FireInfo[], nearestForAll: BaseShip) {
         /* здесь корабль анализирует ситуацию и выбирает лучшее для него действие */
         const enemyWithSmallHp = this.getEnemyWithSmallHp(enemies);
         const nearestEnemy = this.getNearestEnemy(enemies);
         const bestTarget: BaseShip = /*nearestForAll || */enemyWithSmallHp || nearestEnemy;
+        const actionsShip = [];
 
         if (this.isShipWillLeave()) {
-            return this.getMoveAction(bestTarget.Position);
+            actionsShip.push(this.getMoveAction(bestTarget.Position));
         }
 
         if (this.isCanReach(bestTarget.Position))
-            return this.getAttackAction(bestTarget.Position);
+            actionsShip.push(this.getAttackAction(bestTarget.Position));
         else if (this.isCanReach(nearestEnemy.Position)) {
-            return this.getAttackAction(nearestEnemy.Position);
+            actionsShip.push(this.getAttackAction(nearestEnemy.Position));
         } else {
-            return this.getMoveAction(nearestEnemy.Position);
+            if (!actionsShip.length) actionsShip.push(this.getMoveAction(nearestEnemy.Position));
         }
+
+        return actionsShip;
     }
 
     isCanReach(vector: Vector): boolean {
