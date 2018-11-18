@@ -43,7 +43,7 @@ export default class Vector {
     }
 
     sub(vector: Vector) {
-        return new Vector(`${vector.x - this.x}/${vector.y - this.y}/${vector.z - this.z}`);
+        return new Vector(`${this.x - vector.x}/${this.y - vector.y}/${this.z - vector.z}`);
     }
 
     manhattanDistance(vector: Vector): number {

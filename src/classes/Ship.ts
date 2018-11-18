@@ -65,6 +65,28 @@ export default class Ship extends BaseShip {
         return nearestEnemy;
     }
 
+    getEnemyWithSmallHp(enemies: BaseShip[]) {
+        let availableEnemies: BaseShip[] = [];
+
+        enemies.forEach(enemy => {
+            if (this.Position.chebyshevDistance(enemy.Position) <= this.BestBlaster.Radius) { //если можем дотянуться до врага
+                availableEnemies.push(enemy); //то пихаем его в массив
+            }
+        });
+
+        let minHp = 10000;
+        let enemyWithSmallHp;
+
+        availableEnemies.forEach(enemy => {
+            if (enemy.Health < minHp) {
+                minHp = enemy.Health;
+                enemyWithSmallHp = enemy;
+            }
+        })
+
+        return enemyWithSmallHp;
+    }
+
     getBestTarget(myShips: Ship[], enemies: BaseShip[]) {
         return this.getNearestEnemy(enemies); //первая стратегия - просто стрелять в ближайшего
 
@@ -78,7 +100,7 @@ export default class Ship extends BaseShip {
 
     willShipIntersestBorderAtAxis(axisCoordinate: number, axisVelocityProjection: number): Boolean {
         let distanceBeforeStop = this.getDistanceBeforeStop(Math.abs(axisVelocityProjection));
-        return axisCoordinate + distanceBeforeStop > 30 || axisCoordinate - distanceBeforeStop < 0;
+        return axisCoordinate + distanceBeforeStop > 28 || axisCoordinate - distanceBeforeStop < 0;
     }
 
     getDistanceBeforeStop(axisVelocityAbs: number) {
@@ -89,28 +111,28 @@ export default class Ship extends BaseShip {
 
     getBestAction(myShips: Ship[], enemies: BaseShip[], fireInfos: FireInfo[], nearestForAll: BaseShip) {
         /* здесь корабль анализирует ситуацию и выбирает лучшее для него действие */
+        const enemyWithSmallHp = this.getEnemyWithSmallHp(enemies);
         const nearestEnemy = this.getNearestEnemy(enemies);
+        const bestTarget: BaseShip = /*nearestForAll || */enemyWithSmallHp || nearestEnemy;
 
         if (this.isShipWillLeave()) {
-            const center = new Vector(`15/15/15`)
-            return this.getMoveAction(center/*nearestEnemy.Position*/);
+            return this.getMoveAction(bestTarget.Position);
         }
 
-        if (this.isCanReach(nearestForAll))
-            return this.getAttackAction(nearestForAll);
-        else if (this.isCanReach(nearestEnemy)) {
-            return this.getAttackAction(nearestEnemy);
-        }
-        else {
+        if (this.isCanReach(bestTarget.Position))
+            return this.getAttackAction(bestTarget.Position);
+        else if (this.isCanReach(nearestEnemy.Position)) {
+            return this.getAttackAction(nearestEnemy.Position);
+        } else {
             return this.getMoveAction(nearestEnemy.Position);
         }
     }
 
-    isCanReach(enemy: BaseShip): boolean {
-        return this.Position.chebyshevDistance(enemy.Position) <= this.BestBlaster.Radius;
+    isCanReach(vector: Vector): boolean {
+        return this.Position.chebyshevDistance(vector) <= this.BestBlaster.Radius;
     }
 
-    getAttackAction(target: BaseShip): Attack {
+    getAttackAction(target: Vector): Attack {
         const bestBlasterName = this.getBestBlasterName();
 
         return {
@@ -118,7 +140,7 @@ export default class Ship extends BaseShip {
             Parameters: {
                 Id: this.Id,
                 Name: bestBlasterName,
-                Target: target.getPosition().toString()
+                Target: target.toString()
             }
         }
     }
