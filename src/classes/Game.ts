@@ -17,15 +17,15 @@ export default class Game {
     getNearestForAll(myShips, enemies): BaseShip {
         const enemyIdToCountOccurrences: {[id: number]: number} = {};
 
-        myShips.forEach(myShip => {
-            let nearestEnemyId = myShip.getNearestEnemy(enemies).Id;
-            if (enemyIdToCountOccurrences.hasOwnProperty(nearestEnemyId)) enemyIdToCountOccurrences[nearestEnemyId]++;
+        myShips.forEach(myShip => { //для каждого нашего корабля
+            let nearestEnemyId = myShip.getNearestEnemy(enemies).Id; // ищем ближайшего к нему противника
+            if (enemyIdToCountOccurrences.hasOwnProperty(nearestEnemyId)) enemyIdToCountOccurrences[nearestEnemyId]++; // для найденных противников строим словарь, где будем указывать сколько раз противник встретился
             else enemyIdToCountOccurrences[nearestEnemyId] = 1;
         });
 
         let nearestEnemyIdForAll: number;
         let maxCountOccurrences = 0;
-        for (let enemyId in enemyIdToCountOccurrences) {
+        for (let enemyId in enemyIdToCountOccurrences) { // ищем противника, который встретился больше всего раз
             if (!enemyIdToCountOccurrences.hasOwnProperty(enemyId)) return;
 
             let countOccurrences = enemyIdToCountOccurrences[enemyId];
@@ -39,6 +39,7 @@ export default class Game {
     }
 
     getMaxOccurrencesEnemyId(enemyIdToCountOccurrences): number {
+        // ищем врага, до которого может дотянуться большинство наших кораблей
         let maxCountOccurrences = 0;
         let maxOccurrencesEnemyId;
 
@@ -57,18 +58,18 @@ export default class Game {
     getTargetForEachShip(myShips: Ship[], enemies) {
         let myShipIdToAvailableTarget = {};
 
-        myShips.forEach(myShip => {
+        myShips.forEach(myShip => { //для каждого нашего корабля ищем массив врагов, до которых можем дотянуться
             let availableEnemiesIds = [];
 
             enemies.forEach(enemy => {
-                if (myShip.Position.chebyshevDistance(enemy.Position) <= myShip.BestBlaster.Radius) {
-                    availableEnemiesIds.push(enemy.Id);
+                if (myShip.Position.chebyshevDistance(enemy.Position) <= myShip.BestBlaster.Radius) { //если можем дотянуться до врага
+                    availableEnemiesIds.push(enemy.Id); //то пихаем его в массив
                 }
             });
             myShipIdToAvailableTarget[myShip.Id] = availableEnemiesIds;
         });
 
-        const enemyIdToCountOccurrences = {};
+        const enemyIdToCountOccurrences = {}; // делаем словарь, где ключ это Id врага, а значение это сколько наших кораблей могут до него дотянуться пушкой
         enemies.forEach(enemy => {
             for(let myShipId in myShipIdToAvailableTarget) {
                 if (myShipIdToAvailableTarget[myShipId].indexOf(enemy.Id) !== -1) {
@@ -83,8 +84,8 @@ export default class Game {
 
     getBestAction() {
         //const nearestForAll = this.getNearestForAll(this.MyShips, this.OpponentShips);
-        let enemyForAll = this.getTargetForEachShip(this.MyShips, this.OpponentShips);
-        if (!enemyForAll) enemyForAll = this.getNearestForAll(this.MyShips, this.OpponentShips);
+        let enemyForAll = this.getTargetForEachShip(this.MyShips, this.OpponentShips); // берем противника, до которого может дотянуться большинство
+        if (!enemyForAll) enemyForAll = this.getNearestForAll(this.MyShips, this.OpponentShips); // если такого нет(например если мы в самом начале), то берем ближайшего противника для большинства наших кораблей
 
         const userCommands = this.MyShips.map(ship => {
 

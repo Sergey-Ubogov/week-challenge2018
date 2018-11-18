@@ -78,9 +78,7 @@ export default class Ship extends BaseShip {
 
     willShipIntersestBorderAtAxis(axisCoordinate: number, axisVelocityProjection: number): Boolean {
         let distanceBeforeStop = this.getDistanceBeforeStop(Math.abs(axisVelocityProjection));
-        return axisVelocityProjection > 0
-            ? distanceBeforeStop > axisCoordinate
-            : distanceBeforeStop > 30 - axisCoordinate;
+        return axisCoordinate + distanceBeforeStop > 30 || axisCoordinate - distanceBeforeStop < 0;
     }
 
     getDistanceBeforeStop(axisVelocityAbs: number) {
