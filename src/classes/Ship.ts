@@ -7,6 +7,8 @@ import BaseShip from './BaseShip';
 import {Attack} from "../../types/commands/attack";
 import {FireInfo} from "../../types/fire-info";
 import {Move} from "../../types/commands/move";
+import Vector from "./Vector";
+import {Accelerate} from "../../types/commands/accelerate";
 
 export default class Ship extends BaseShip {
     Energy: number;
@@ -68,16 +70,34 @@ export default class Ship extends BaseShip {
 
     }
 
+    isShipWillLeave() {
+        const nextPosition = this.Position.add(this.Velocity);
+        const nextX = nextPosition.x;
+        const nextY = nextPosition.y;
+        const nextZ = nextPosition.z;
+        const maxCoordinate = 30;
+        const minCoordinate = 0;
+
+        return nextX < minCoordinate || nextY < minCoordinate || nextZ < minCoordinate ||
+               nextX > maxCoordinate || nextY > maxCoordinate || nextZ > maxCoordinate;
+    }
+
     getBestAction(myShips: Ship[], enemies: BaseShip[], fireInfos: FireInfo[], nearestForAll: BaseShip) {
         /* здесь корабль анализирует ситуацию и выбирает лучшее для него действие */
         const nearestEnemy = this.getNearestEnemy(enemies);
+
+        if (this.isShipWillLeave()) {
+            return this.getMoveAction(nearestEnemy.Position);
+        }
 
         if (this.isCanReach(nearestForAll))
             return this.getAttackAction(nearestForAll);
         else if (this.isCanReach(nearestEnemy)) {
             return this.getAttackAction(nearestEnemy);
         }
-        else return this.getMoveAction(nearestForAll);
+        else {
+            return this.getMoveAction(nearestEnemy.Position);
+        }
     }
 
     isCanReach(enemy: BaseShip): boolean {
@@ -97,17 +117,23 @@ export default class Ship extends BaseShip {
         }
     }
 
-    getMoveAction(target: BaseShip): Move {
+    getMoveAction(target: Vector): Move {
         return {
             Command: 'MOVE',
             Parameters: {
                 Id: this.Id,
-                Target: target.getPosition().toString()
+                Target: target.toString()
             }
         }
     }
 
-    getAccelerateAction() {
-        /* todo */
+    getAccelerateAction(vector): Accelerate {
+        return {
+            Command: 'ACCELERATE',
+            Parameters: {
+                Id: this.Id,
+                Vector: vector.toString()
+            }
+        }
     }
 }

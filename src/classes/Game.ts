@@ -91,11 +91,11 @@ export default class Game {
             return ship.getBestAction(this.MyShips, this.OpponentShips, this.FireInfos, enemyForAll);
         });
 
-        let debugMessage = this.MyShips.reduce((str, myShip)=> {
-            return str + '  ' + `id: ${myShip.Id}, dist: ${myShip.Position.chebyshevDistance(enemyForAll.Position)}, ${myShip.BestBlaster.Radius}`;
+        let debugMessage = userCommands.reduce((str, command)=> {
+            return str + '  ' + `id: ${command.Parameters.Id}, command: ${command.Command}, target: ${command.Parameters.Target}`;
         }, '')
-        debugMessage += `enemyForAll: ${this.getTargetForEachShip(this.MyShips, this.OpponentShips) && this.getTargetForEachShip(this.MyShips, this.OpponentShips).Position}`;
-        debugMessage += `enemyForAll2: ${enemyForAll.Position}`;
+        debugMessage += `fireInfo: ${JSON.stringify(this.FireInfos)}`;
+
         return {
             UserCommands: userCommands,
             Message: debugMessage
