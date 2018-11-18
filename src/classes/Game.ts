@@ -61,7 +61,7 @@ export default class Game {
             let availableEnemiesIds = [];
 
             enemies.forEach(enemy => {
-                if (myShip.Position.сhebyshevDistance(enemy.Position) <= myShip.BestBlaster.Radius) {
+                if (myShip.Position.chebyshevDistance(enemy.Position) <= myShip.BestBlaster.Radius) {
                     availableEnemiesIds.push(enemy.Id);
                 }
             });
@@ -92,7 +92,7 @@ export default class Game {
         });
 
         let debugMessage = this.MyShips.reduce((str, myShip)=> {
-            return str + '  ' + `id: ${myShip.Id}, dist: ${myShip.Position.manhattanDistance(enemyForAll.Position)}, ${myShip.BestBlaster.Radius}`;
+            return str + '  ' + `id: ${myShip.Id}, dist: ${myShip.Position.chebyshevDistance(enemyForAll.Position)}, ${myShip.BestBlaster.Radius}`;
         }, '')
         debugMessage += `enemyForAll: ${this.getTargetForEachShip(this.MyShips, this.OpponentShips) && this.getTargetForEachShip(this.MyShips, this.OpponentShips).Position}`;
         debugMessage += `enemyForAll2: ${enemyForAll.Position}`;

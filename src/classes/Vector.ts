@@ -30,7 +30,7 @@ export default class Vector {
         return Math.abs(this.x - vector.x) + Math.abs(this.y - vector.y) + Math.abs(this.z - vector.z)
     }
 
-    сhebyshevDistance(vector: Vector): number {
+    chebyshevDistance(vector: Vector): number {
         const newVector = this.sub(vector);
 
         return Math.max(Math.abs(newVector.x), Math.abs(newVector.y), Math.abs(newVector.z))

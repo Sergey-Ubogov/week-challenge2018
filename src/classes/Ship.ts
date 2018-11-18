@@ -51,7 +51,7 @@ export default class Ship extends BaseShip {
         let minDistance = 10000000;
 
         enemies.forEach(enemy => {
-            const distanceToEnemy = this.Position.manhattanDistance(enemy.Position);
+            const distanceToEnemy = this.Position.chebyshevDistance(enemy.Position);
             if (distanceToEnemy > minDistance) return;
 
             minDistance = distanceToEnemy;
@@ -81,7 +81,7 @@ export default class Ship extends BaseShip {
     }
 
     isCanReach(enemy: BaseShip): boolean {
-        return this.Position.сhebyshevDistance(enemy.Position) <= this.BestBlaster.Radius;
+        return this.Position.chebyshevDistance(enemy.Position) <= this.BestBlaster.Radius;
     }
 
     getAttackAction(target: BaseShip): Attack {
