@@ -16,7 +16,7 @@ export default class Ship extends BaseShip {
     constructor(ship: ShipType) {
         super(ship);
 
-        this.Energy = ship.Energy;
+        this.Energy = Number(ship.Energy);
         this.Equipment = ship.Equipment
 
         const blasters = this.Equipment.filter(block => block.Type === BlockEnum.blasterBlock).map(blaster => blaster as BlasterBlock);
@@ -24,7 +24,7 @@ export default class Ship extends BaseShip {
     }
 
     getWeightBlaster(blaster: BlasterBlock) {
-        return blaster.Damage * blaster.Radius / blaster.EnergyPrice;
+        return /*blaster.Damage **/ blaster.Radius / blaster.EnergyPrice;
     }
 
     getBestBlaster(blasters: BlasterBlock[]): BlasterBlock {
@@ -63,16 +63,25 @@ export default class Ship extends BaseShip {
         return nearestEnemy;
     }
 
-    getBestAction(myShips: Ship[], enemies: BaseShip[], fireInfos: FireInfo[]) {
+    getBestTarget(myShips: Ship[], enemies: BaseShip[]) {
+        return this.getNearestEnemy(enemies); //первая стратегия - просто стрелять в ближайшего
+
+    }
+
+    getBestAction(myShips: Ship[], enemies: BaseShip[], fireInfos: FireInfo[], nearestForAll: BaseShip) {
         /* здесь корабль анализирует ситуацию и выбирает лучшее для него действие */
         const nearestEnemy = this.getNearestEnemy(enemies);
-        if (this.isCanReach(nearestEnemy))
-            return this.getAttackAction(this.getNearestEnemy(enemies));
-        else return this.getMoveAction(nearestEnemy);
+
+        if (this.isCanReach(nearestForAll))
+            return this.getAttackAction(nearestForAll);
+        else if (this.isCanReach(nearestEnemy)) {
+            return this.getAttackAction(nearestEnemy);
+        }
+        else return this.getMoveAction(nearestForAll);
     }
 
     isCanReach(enemy: BaseShip): boolean {
-        return this.Position.manhattanDistance(enemy.Position) <= this.BestBlaster.Radius;
+        return this.Position.сhebyshevDistance(enemy.Position) <= this.BestBlaster.Radius;
     }
 
     getAttackAction(target: BaseShip): Attack {

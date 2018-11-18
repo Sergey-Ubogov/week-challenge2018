@@ -10,8 +10,8 @@ export default class Ship {
     BestBlaster: BlasterBlock
 
     constructor(ship: ShipType) {
-        this.Id = ship.Id;
-        this.Health = ship.Health;
+        this.Id = Number(ship.Id);
+        this.Health = Number(ship.Health);
         this.Position = new Vector(ship.Position);
         this.Velocity = new Vector(ship.Velocity);
     }

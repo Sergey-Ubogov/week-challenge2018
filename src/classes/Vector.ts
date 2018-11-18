@@ -22,7 +22,17 @@ export default class Vector {
         )
     }
 
+    sub(vector: Vector) {
+        return new Vector(`${vector.x - this.x}/${vector.y - this.y}/${vector.z - this.z}`);
+    }
+
     manhattanDistance(vector: Vector): number {
         return Math.abs(this.x - vector.x) + Math.abs(this.y - vector.y) + Math.abs(this.z - vector.z)
+    }
+
+    сhebyshevDistance(vector: Vector): number {
+        const newVector = this.sub(vector);
+
+        return Math.max(Math.abs(newVector.x), Math.abs(newVector.y), Math.abs(newVector.z))
     }
 }
