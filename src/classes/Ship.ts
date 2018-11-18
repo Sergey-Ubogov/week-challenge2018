@@ -19,7 +19,7 @@ export default class Ship extends BaseShip {
         super(ship);
 
         this.Energy = Number(ship.Energy);
-        this.Equipment = ship.Equipment
+        this.Equipment = ship.Equipment;
 
         const blasters = this.Equipment.filter(block => block.Type === BlockEnum.blasterBlock).map(blaster => blaster as BlasterBlock);
         this.BestBlaster = this.getBestBlaster(blasters);
@@ -71,17 +71,16 @@ export default class Ship extends BaseShip {
     }
 
     isShipWillLeave() {
-        const nextPosition = this.Position.add(this.Velocity);
-        const nextX = nextPosition.x;
-        const nextY = nextPosition.y;
-        const nextZ = nextPosition.z;
-        const maxCoordinate = 27;
-        const minCoordinate = 3;
-
-        return nextX < minCoordinate || nextY < minCoordinate || nextZ < minCoordinate ||
-               nextX > maxCoordinate || nextY > maxCoordinate || nextZ > maxCoordinate;
+        return this.willShipIntersestBorderAtAxis(this.Position.x, this.Velocity.x)
+            || this.willShipIntersestBorderAtAxis(this.Position.y, this.Velocity.y)
+            || this.willShipIntersestBorderAtAxis(this.Position.z, this.Velocity.z);
     }
 
+    willShipIntersestBorderAtAxis(axisCoordinate: number, axisVelocityProjection: number): Boolean {
+        return axisVelocityProjection > 0
+            ? Math.abs(axisVelocityProjection) > axisCoordinate
+            : axisVelocityProjection > 30 - axisCoordinate;
+    }
 
     getBestAction(myShips: Ship[], enemies: BaseShip[], fireInfos: FireInfo[], nearestForAll: BaseShip) {
         /* здесь корабль анализирует ситуацию и выбирает лучшее для него действие */
