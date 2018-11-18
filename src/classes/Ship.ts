@@ -77,9 +77,16 @@ export default class Ship extends BaseShip {
     }
 
     willShipIntersestBorderAtAxis(axisCoordinate: number, axisVelocityProjection: number): Boolean {
+        let distanceBeforeStop = this.getDistanceBeforeStop(Math.abs(axisVelocityProjection));
         return axisVelocityProjection > 0
-            ? Math.abs(axisVelocityProjection) > axisCoordinate
-            : axisVelocityProjection > 30 - axisCoordinate;
+            ? distanceBeforeStop > axisCoordinate
+            : distanceBeforeStop > 30 - axisCoordinate;
+    }
+
+    getDistanceBeforeStop(axisVelocityAbs: number) {
+        return axisVelocityAbs * (axisVelocityAbs + 1) / 2;
+        // арифметическая прогрессия; нужна, потому что каждый ход скорость можно уменьшить на 1,
+        // поэтому скорость будет axisVelocity, axisVelocity - 1, ..., 1
     }
 
     getBestAction(myShips: Ship[], enemies: BaseShip[], fireInfos: FireInfo[], nearestForAll: BaseShip) {
