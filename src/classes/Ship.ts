@@ -19,7 +19,7 @@ export default class Ship extends BaseShip {
         super(ship);
 
         this.Energy = Number(ship.Energy);
-        this.Equipment = ship.Equipment
+        this.Equipment = ship.Equipment;
 
         const blasters = this.Equipment.filter(block => block.Type === BlockEnum.blasterBlock).map(blaster => blaster as BlasterBlock);
         this.BestBlaster = this.getBestBlaster(blasters);
@@ -71,17 +71,23 @@ export default class Ship extends BaseShip {
     }
 
     isShipWillLeave() {
-        const nextPosition = this.Position.add(this.Velocity);
-        const nextX = nextPosition.x;
-        const nextY = nextPosition.y;
-        const nextZ = nextPosition.z;
-        const maxCoordinate = 27;
-        const minCoordinate = 3;
-
-        return nextX < minCoordinate || nextY < minCoordinate || nextZ < minCoordinate ||
-               nextX > maxCoordinate || nextY > maxCoordinate || nextZ > maxCoordinate;
+        return this.willShipIntersestBorderAtAxis(this.Position.x, this.Velocity.x)
+            || this.willShipIntersestBorderAtAxis(this.Position.y, this.Velocity.y)
+            || this.willShipIntersestBorderAtAxis(this.Position.z, this.Velocity.z);
     }
 
+    willShipIntersestBorderAtAxis(axisCoordinate: number, axisVelocityProjection: number): Boolean {
+        let distanceBeforeStop = this.getDistanceBeforeStop(Math.abs(axisVelocityProjection));
+        return axisVelocityProjection > 0
+            ? distanceBeforeStop > axisCoordinate
+            : distanceBeforeStop > 30 - axisCoordinate;
+    }
+
+    getDistanceBeforeStop(axisVelocityAbs: number) {
+        return axisVelocityAbs * (axisVelocityAbs + 1) / 2;
+        // арифметическая прогрессия; нужна, потому что каждый ход скорость можно уменьшить на 1,
+        // поэтому скорость будет axisVelocity, axisVelocity - 1, ..., 1
+    }
 
     getBestAction(myShips: Ship[], enemies: BaseShip[], fireInfos: FireInfo[], nearestForAll: BaseShip) {
         /* здесь корабль анализирует ситуацию и выбирает лучшее для него действие */
