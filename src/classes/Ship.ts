@@ -75,19 +75,21 @@ export default class Ship extends BaseShip {
         const nextX = nextPosition.x;
         const nextY = nextPosition.y;
         const nextZ = nextPosition.z;
-        const maxCoordinate = 30;
-        const minCoordinate = 0;
+        const maxCoordinate = 27;
+        const minCoordinate = 3;
 
         return nextX < minCoordinate || nextY < minCoordinate || nextZ < minCoordinate ||
                nextX > maxCoordinate || nextY > maxCoordinate || nextZ > maxCoordinate;
     }
+
 
     getBestAction(myShips: Ship[], enemies: BaseShip[], fireInfos: FireInfo[], nearestForAll: BaseShip) {
         /* здесь корабль анализирует ситуацию и выбирает лучшее для него действие */
         const nearestEnemy = this.getNearestEnemy(enemies);
 
         if (this.isShipWillLeave()) {
-            return this.getMoveAction(nearestEnemy.Position);
+            const center = new Vector(`15/15/15`)
+            return this.getMoveAction(center/*nearestEnemy.Position*/);
         }
 
         if (this.isCanReach(nearestForAll))
