@@ -6,7 +6,7 @@ const readline = require('readline');
 const rl = readline.createInterface(process.stdin, process.stdout);
 
 rl.on('line', function(line){
-    if (line === '{}') console.info('{}');
+    if (JSON.parse(line).hasOwnProperty('PlayerId')) console.info('{}');
     else console.info(JSON.stringify(nextStep(JSON.parse(line))));
 });
 
