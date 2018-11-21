@@ -109,11 +109,36 @@ export default class Ship extends BaseShip {
         // поэтому скорость будет axisVelocity, axisVelocity - 1, ..., 1
     }
 
-    getActions(myShips: Ship[], enemies: BaseShip[], fireInfos: FireInfo[], nearestForAll: BaseShip) {
+    // getActions(myShips: Ship[], enemies: BaseShip[], fireInfos: FireInfo[], nearestForAll: BaseShip) {
+    //     /* здесь корабль анализирует ситуацию и выбирает лучшее для него действие */
+    //     const enemyWithSmallHp = this.getEnemyWithSmallHp(enemies);
+    //     const nearestEnemy = this.getNearestEnemy(enemies);
+    //     const bestTarget: BaseShip = nearestForAll || enemyWithSmallHp || nearestEnemy;
+    //     const actionsShip = [];
+    //
+    //     if (this.isShipWillLeave()) {
+    //         actionsShip.push(this.getMoveAction(bestTarget.Position));
+    //     }
+    //
+    //     const enemyShipReachablePosition = this.getEnemyShipReachablePosition(bestTarget.Position);
+    //     if (enemyShipReachablePosition)
+    //         actionsShip.push(this.getAttackAction(bestTarget.Position));
+    //     else {
+    //         if (enemyWithSmallHp) {
+    //             actionsShip.push(this.getAttackAction(nearestEnemy.Position));
+    //         } else {
+    //             if (!actionsShip.length) actionsShip.push(this.getMoveAction(bestTarget.Position));
+    //         }
+    //     }
+    //
+    //     return actionsShip;
+    // }
+
+    getActions(myShips: Ship[], enemies: BaseShip[], fireInfos: FireInfo[], nearestEnemiesForAll: BaseShip[]) {
         /* здесь корабль анализирует ситуацию и выбирает лучшее для него действие */
         const enemyWithSmallHp = this.getEnemyWithSmallHp(enemies);
         const nearestEnemy = this.getNearestEnemy(enemies);
-        const bestTarget: BaseShip = nearestForAll || enemyWithSmallHp || nearestEnemy;
+        const bestTarget: BaseShip = nearestEnemiesForAll[0] || enemyWithSmallHp || nearestEnemy;
         const actionsShip = [];
 
         if (this.isShipWillLeave()) {
@@ -123,10 +148,12 @@ export default class Ship extends BaseShip {
         const enemyShipReachablePosition = this.getEnemyShipReachablePosition(bestTarget.Position);
         if (enemyShipReachablePosition)
             actionsShip.push(this.getAttackAction(bestTarget.Position));
-        else if (enemyWithSmallHp) {
+        else if (nearestEnemiesForAll[1] && this.getEnemyShipReachablePosition(nearestEnemiesForAll[1].Position)) {
+            actionsShip.push(this.getAttackAction(bestTarget.Position));
+        } else if (enemyWithSmallHp) {
             actionsShip.push(this.getAttackAction(nearestEnemy.Position));
-        } else {
-            if (!actionsShip.length) actionsShip.push(this.getMoveAction(bestTarget.Position));
+        } else if (!actionsShip.length) {
+            actionsShip.push(this.getMoveAction(bestTarget.Position));
         }
 
         return actionsShip;
