@@ -132,7 +132,14 @@ export default class Ship extends BaseShip {
     }
 
     isCanReach(vector: Vector): boolean {
-        return this.Position.chebyshevDistance(vector) <= this.BestBlaster.Radius;
+        return (this.Position.chebyshevDistance(new Vector(`${vector.x}/${vector.y}/${vector.z}`)) <= this.BestBlaster.Radius)
+            || (this.Position.chebyshevDistance(new Vector(`${vector.x + 1}/${vector.y}/${vector.z}`)) <= this.BestBlaster.Radius)
+            || (this.Position.chebyshevDistance(new Vector(`${vector.x}/${vector.y + 1}/${vector.z}`)) <= this.BestBlaster.Radius)
+            || (this.Position.chebyshevDistance(new Vector(`${vector.x}/${vector.y}/${vector.z + 1}`)) <= this.BestBlaster.Radius)
+            || (this.Position.chebyshevDistance(new Vector(`${vector.x + 1}/${vector.y + 1}/${vector.z}`)) <= this.BestBlaster.Radius)
+            || (this.Position.chebyshevDistance(new Vector(`${vector.x + 1}/${vector.y}/${vector.z + 1}`)) <= this.BestBlaster.Radius)
+            || (this.Position.chebyshevDistance(new Vector(`${vector.x}/${vector.y + 1}/${vector.z + 1}`)) <= this.BestBlaster.Radius)
+            || (this.Position.chebyshevDistance(new Vector(`${vector.x + 1}/${vector.y + 1}/${vector.z + 1}`)) <= this.BestBlaster.Radius);
     }
 
     getAttackAction(target: Vector): Attack {
