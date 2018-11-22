@@ -142,7 +142,9 @@ export default class Ship extends BaseShip {
         const actionsShip = [];
 
         if (this.isShipWillLeave()) {
-            actionsShip.push(this.getMoveAction(bestTarget.Position));
+            actionsShip.push(this.getAccelerateAction(bestTarget.Position.sub(this.Position).getNormalizeVector().sub(this.Velocity).getNormalizeVector()));
+           // actionsShip.push(this.getAccelerateAction(new Vector("0/1/0")));
+            //actionsShip.push(this.getMoveAction(bestTarget.Position));
         }
 
         let enemyShipReachablePosition = this.getEnemyShipReachablePosition(bestTarget.Position);
@@ -158,7 +160,9 @@ export default class Ship extends BaseShip {
             if (enemyShipReachablePosition)
                 actionsShip.push(this.getAttackAction(enemyShipReachablePosition));
         }  else if (!actionsShip.length) {
-            actionsShip.push(this.getMoveAction(bestTarget.Position));
+          //  actionsShip.push(this.getMoveAction(bestTarget.Position));
+            actionsShip.push(this.getAccelerateAction(bestTarget.Position.sub(this.Position).getNormalizeVector().sub(this.Velocity).getNormalizeVector()));
+           // actionsShip.push(this.getAccelerateAction(new Vector("0/1/0")));
         }
 
         return actionsShip;
