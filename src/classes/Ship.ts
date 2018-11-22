@@ -138,21 +138,26 @@ export default class Ship extends BaseShip {
         /* здесь корабль анализирует ситуацию и выбирает лучшее для него действие */
         const enemyWithSmallHp = this.getEnemyWithSmallHp(enemies);
         const nearestEnemy = this.getNearestEnemy(enemies);
-        const bestTarget: BaseShip = nearestEnemiesForAll[0] || enemyWithSmallHp || nearestEnemy;
+        const bestTarget: BaseShip = enemyWithSmallHp || nearestEnemiesForAll[0] || nearestEnemy;
         const actionsShip = [];
 
         if (this.isShipWillLeave()) {
             actionsShip.push(this.getMoveAction(bestTarget.Position));
         }
 
-        const enemyShipReachablePosition = this.getEnemyShipReachablePosition(bestTarget.Position);
+        let enemyShipReachablePosition = this.getEnemyShipReachablePosition(bestTarget.Position);
         if (enemyShipReachablePosition)
             actionsShip.push(this.getAttackAction(bestTarget.Position));
-        else if (nearestEnemiesForAll[1] && this.getEnemyShipReachablePosition(nearestEnemiesForAll[1].Position)) {
-            actionsShip.push(this.getAttackAction(bestTarget.Position));
-        } else if (enemyWithSmallHp) {
-            actionsShip.push(this.getAttackAction(nearestEnemy.Position));
-        } else if (!actionsShip.length) {
+        else if (enemyWithSmallHp) {
+            enemyShipReachablePosition = this.getEnemyShipReachablePosition(enemyWithSmallHp);
+            if (enemyShipReachablePosition)
+                actionsShip.push(this.getAttackAction(enemyWithSmallHp));
+        }
+        else if (nearestEnemiesForAll[1]) {
+            enemyShipReachablePosition = this.getEnemyShipReachablePosition(nearestEnemiesForAll[1].Position);
+            if (enemyShipReachablePosition)
+                actionsShip.push(this.getAttackAction(enemyShipReachablePosition));
+        }  else if (!actionsShip.length) {
             actionsShip.push(this.getMoveAction(bestTarget.Position));
         }
 
