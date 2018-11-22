@@ -155,6 +155,11 @@ export default class Ship extends BaseShip {
             if (enemyShipReachablePosition)
                 actionsShip.push(this.getAttackAction(enemyWithSmallHp));
         }
+        else if (nearestEnemiesForAll[0]) {
+            enemyShipReachablePosition = this.getEnemyShipReachablePosition(nearestEnemiesForAll[0].Position);
+            if (enemyShipReachablePosition)
+                actionsShip.push(this.getAttackAction(enemyShipReachablePosition));
+        }
         else if (nearestEnemiesForAll[1]) {
             enemyShipReachablePosition = this.getEnemyShipReachablePosition(nearestEnemiesForAll[1].Position);
             if (enemyShipReachablePosition)
