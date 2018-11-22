@@ -9,24 +9,28 @@ import {FireInfo} from "../../types/fire-info";
 import {Move} from "../../types/commands/move";
 import Vector from "./Vector";
 import {Accelerate} from "../../types/commands/accelerate";
+import {EngineBlock} from "../../types/blocks/engine-block";
 
 export default class Ship extends BaseShip {
     Energy: number;
-    Equipment: (EnergyBlock | EnergyBlock | BlasterBlock | HealthBlock)[];
+    Equipment: any[];
     BestBlaster: BlasterBlock;
+    MaxAccelerate: number;
 
     constructor(ship: ShipType) {
         super(ship);
 
         this.Energy = Number(ship.Energy);
         this.Equipment = ship.Equipment;
+        const engines: EngineBlock[] = this.Equipment.filter(block => block.Type === BlockEnum.engineBlock).map(engine => engine as EngineBlock);
+        this.MaxAccelerate = engines.reduce((maxAccelerate, engine) => maxAccelerate + engine.MaxAccelerate, 0)
 
         const blasters = this.Equipment.filter(block => block.Type === BlockEnum.blasterBlock).map(blaster => blaster as BlasterBlock);
         this.BestBlaster = this.getBestBlaster(blasters);
     }
 
     getWeightBlaster(blaster: BlasterBlock) {
-        return /*blaster.Damage **/ blaster.Radius / blaster.EnergyPrice;
+        return blaster.Damage * blaster.Radius / blaster.EnergyPrice;
     }
 
     getBestBlaster(blasters: BlasterBlock[]): BlasterBlock {
@@ -48,19 +52,46 @@ export default class Ship extends BaseShip {
         return this.BestBlaster.Name;
     }
 
+    getShipCoordinates(shipPosition: Vector) {
+        return [
+            new Vector(`${shipPosition.x}/${shipPosition.y}/${shipPosition.z}`),
+            new Vector(`${shipPosition.x+1}/${shipPosition.y}/${shipPosition.z}`),
+            new Vector(`${shipPosition.x}/${shipPosition.y+1}/${shipPosition.z}`),
+            new Vector(`${shipPosition.x+1}/${shipPosition.y+1}/${shipPosition.z}`),
+            new Vector(`${shipPosition.x}/${shipPosition.y}/${shipPosition.z+1}`),
+            new Vector(`${shipPosition.x+1}/${shipPosition.y}/${shipPosition.z+1}`),
+            new Vector(`${shipPosition.x}/${shipPosition.y+1}/${shipPosition.z+1}`),
+            new Vector(`${shipPosition.x+1}/${shipPosition.y+1}/${shipPosition.z+1}`),
+        ]
+    }
+
+    getShipNearestPoint(shipPosition: Vector, fromPos: Vector = this.Position) {
+        let minDistance = 10000000;
+        let shipCoordinates = this.getShipCoordinates(shipPosition);
+        let shipNearestPoint = shipPosition;
+
+        shipCoordinates.forEach(shipCoordinate => {
+            const distance = fromPos.chebyshevDistance(shipCoordinate);
+            if (distance < minDistance) {
+                minDistance = distance;
+                shipNearestPoint = shipCoordinate;
+            }
+        });
+
+        return shipNearestPoint;
+    }
+
     getNearestEnemy(enemies: BaseShip[]) {
         let nearestEnemy = enemies[0];
         let minDistance = 10000000;
 
         enemies.forEach(enemy => {
-            const distanceToEnemy = this.Position.chebyshevDistance(enemy.Position);
+            const distanceToEnemy = this.Position.chebyshevDistance(this.getShipNearestPoint(enemy.Position));
             if (distanceToEnemy > minDistance) return;
 
             minDistance = distanceToEnemy;
             nearestEnemy = enemy;
         });
-
-        if (!nearestEnemy) nearestEnemy = enemies[0];
 
         return nearestEnemy;
     }
@@ -69,7 +100,7 @@ export default class Ship extends BaseShip {
         let availableEnemies: BaseShip[] = [];
 
         enemies.forEach(enemy => {
-            if (this.getEnemyShipReachablePosition(enemy.Position)) { //если можем дотянуться до врага
+            if (this.getPointForAttack(enemy.Position.add(enemy.Velocity.getNormalizeVector()))) { //если можем дотянуться до врага
                 availableEnemies.push(enemy); //то пихаем его в массив
             }
         });
@@ -82,14 +113,9 @@ export default class Ship extends BaseShip {
                 minHp = enemy.Health;
                 enemyWithSmallHp = enemy;
             }
-        })
+        });
 
         return enemyWithSmallHp;
-    }
-
-    getBestTarget(myShips: Ship[], enemies: BaseShip[]) {
-        return this.getNearestEnemy(enemies); //первая стратегия - просто стрелять в ближайшего
-
     }
 
     isShipWillLeave() {
@@ -100,7 +126,7 @@ export default class Ship extends BaseShip {
 
     willShipIntersestBorderAtAxis(axisCoordinate: number, axisVelocityProjection: number): Boolean {
         let distanceBeforeStop = this.getDistanceBeforeStop(Math.abs(axisVelocityProjection));
-        return axisCoordinate + distanceBeforeStop > 28 || axisCoordinate - distanceBeforeStop < 0;
+        return axisCoordinate + distanceBeforeStop > 28 || axisCoordinate - distanceBeforeStop < 2;
     }
 
     getDistanceBeforeStop(axisVelocityAbs: number) {
@@ -109,107 +135,35 @@ export default class Ship extends BaseShip {
         // поэтому скорость будет axisVelocity, axisVelocity - 1, ..., 1
     }
 
-    // getActions(myShips: Ship[], enemies: BaseShip[], fireInfos: FireInfo[], nearestForAll: BaseShip) {
-    //     /* здесь корабль анализирует ситуацию и выбирает лучшее для него действие */
-    //     const enemyWithSmallHp = this.getEnemyWithSmallHp(enemies);
-    //     const nearestEnemy = this.getNearestEnemy(enemies);
-    //     const bestTarget: BaseShip = nearestForAll || enemyWithSmallHp || nearestEnemy;
-    //     const actionsShip = [];
-    //
-    //     if (this.isShipWillLeave()) {
-    //         actionsShip.push(this.getMoveAction(bestTarget.Position));
-    //     }
-    //
-    //     const enemyShipReachablePosition = this.getEnemyShipReachablePosition(bestTarget.Position);
-    //     if (enemyShipReachablePosition)
-    //         actionsShip.push(this.getAttackAction(bestTarget.Position));
-    //     else {
-    //         if (enemyWithSmallHp) {
-    //             actionsShip.push(this.getAttackAction(nearestEnemy.Position));
-    //         } else {
-    //             if (!actionsShip.length) actionsShip.push(this.getMoveAction(bestTarget.Position));
-    //         }
-    //     }
-    //
-    //     return actionsShip;
-    // }
-
-    getActions(myShips: Ship[], enemies: BaseShip[], fireInfos: FireInfo[], nearestEnemiesForAll: BaseShip[]) {
+    getActions(myShips: Ship[], enemies: BaseShip[], fireInfos: FireInfo[], nearestForAll: BaseShip) {
         /* здесь корабль анализирует ситуацию и выбирает лучшее для него действие */
         const enemyWithSmallHp = this.getEnemyWithSmallHp(enemies);
         const nearestEnemy = this.getNearestEnemy(enemies);
-        const bestTarget: BaseShip = enemyWithSmallHp || nearestEnemiesForAll[0] || nearestEnemy;
+
+        const bestTarget: BaseShip = nearestForAll || enemyWithSmallHp || nearestEnemy;
+
         const actionsShip = [];
-
         if (this.isShipWillLeave()) {
-            actionsShip.push(this.getAccelerateAction(bestTarget.Position.sub(this.Position).getNormalizeVector().sub(this.Velocity).getNormalizeVector()));
-           // actionsShip.push(this.getAccelerateAction(new Vector("0/1/0")));
-            //actionsShip.push(this.getMoveAction(bestTarget.Position));
+            actionsShip.push(this.getMoveAction(bestTarget.Position));
         }
 
-        let enemyShipReachablePosition = this.getEnemyShipReachablePosition(bestTarget.Position);
-        if (enemyShipReachablePosition)
-            actionsShip.push(this.getAttackAction(bestTarget.Position));
-        else if (enemyWithSmallHp) {
-            enemyShipReachablePosition = this.getEnemyShipReachablePosition(enemyWithSmallHp);
-            if (enemyShipReachablePosition)
-                actionsShip.push(this.getAttackAction(enemyWithSmallHp));
+        const pointToAttack = this.getPointForAttack(bestTarget.Position.add(bestTarget.Velocity.getNormalizeVector()));
+        if (pointToAttack) {
+            actionsShip.push(this.getAttackAction(pointToAttack));
+        } else {
+            if (enemyWithSmallHp) {
+                actionsShip.push(this.getAttackAction(this.getPointForAttack(enemyWithSmallHp.Position.add(enemyWithSmallHp.Velocity.getNormalizeVector()))));
+            } else {
+                if (!actionsShip.length) actionsShip.push(this.getMoveAction(bestTarget.Position));
+            }
         }
-        else if (nearestEnemiesForAll[0]) {
-            enemyShipReachablePosition = this.getEnemyShipReachablePosition(nearestEnemiesForAll[0].Position);
-            if (enemyShipReachablePosition)
-                actionsShip.push(this.getAttackAction(enemyShipReachablePosition));
-        }
-        else if (nearestEnemiesForAll[1]) {
-            enemyShipReachablePosition = this.getEnemyShipReachablePosition(nearestEnemiesForAll[1].Position);
-            if (enemyShipReachablePosition)
-                actionsShip.push(this.getAttackAction(enemyShipReachablePosition));
-        }  else if (!actionsShip.length) {
-          //  actionsShip.push(this.getMoveAction(bestTarget.Position));
-            actionsShip.push(this.getAccelerateAction(bestTarget.Position.sub(this.Position).getNormalizeVector().sub(this.Velocity).getNormalizeVector()));
-           // actionsShip.push(this.getAccelerateAction(new Vector("0/1/0")));
-        }
-
         return actionsShip;
     }
 
-    getEnemyShipReachablePosition(vector: Vector): Vector {
-         // for (let x = vector.x; x <= vector.x + 1; x++)
-         // for (let y = vector.y; x <= vector.y + 1; y++)
-         // for (let z = vector.z; x <= vector.z + 1; z++)
-         //     if (this.Position.chebyshevDistance(new Vector(`${x}/${y}/${z}`)) <= this.BestBlaster.Radius)
-         //         return new Vector(`${x}/${y}/${z}`);
-
-        let enemyShipCoordinate = vector;
-        if (this.canBlasterReachPostion(enemyShipCoordinate))
-            return enemyShipCoordinate;
-        enemyShipCoordinate = new Vector(`${vector.x + 1}/${vector.y}/${vector.z}`);
-        if (this.canBlasterReachPostion(enemyShipCoordinate))
-            return enemyShipCoordinate;
-        enemyShipCoordinate = new Vector(`${vector.x}/${vector.y + 1}/${vector.z}`);
-        if (this.canBlasterReachPostion(enemyShipCoordinate))
-            return enemyShipCoordinate;
-        enemyShipCoordinate = new Vector(`${vector.x}/${vector.y}/${vector.z + 1}`);
-        if (this.canBlasterReachPostion(enemyShipCoordinate))
-            return enemyShipCoordinate;
-        enemyShipCoordinate = new Vector(`${vector.x + 1}/${vector.y + 1}/${vector.z}`);
-        if (this.canBlasterReachPostion(enemyShipCoordinate))
-            return enemyShipCoordinate;
-        enemyShipCoordinate = new Vector(`${vector.x + 1}/${vector.y}/${vector.z + 1}`);
-        if (this.canBlasterReachPostion(enemyShipCoordinate))
-            return enemyShipCoordinate;
-        enemyShipCoordinate = new Vector(`${vector.x}/${vector.y + 1}/${vector.z + 1}`);
-        if (this.canBlasterReachPostion(enemyShipCoordinate))
-            return enemyShipCoordinate;
-        enemyShipCoordinate = new Vector(`${vector.x + 1}/${vector.y + 1}/${vector.z + 1}`);
-        if (this.canBlasterReachPostion(enemyShipCoordinate))
-            return enemyShipCoordinate;
-
-        return undefined;
-    }
-
-    canBlasterReachPostion(enemyShipCoordinate: Vector): boolean {
-        return this.Position.chebyshevDistance(enemyShipCoordinate) <= this.BestBlaster.Radius;
+    getPointForAttack(enemyShipCoordinate: Vector) {
+        const nearestPointOfShip = this.getShipNearestPoint(enemyShipCoordinate, this.Position.add(this.Velocity.getNormalizeVector()));
+        const fromPos = this.getShipNearestPoint(this.Position.add(this.Velocity.getNormalizeVector()), nearestPointOfShip)
+        return fromPos.chebyshevDistance(nearestPointOfShip) <= this.BestBlaster.Radius + 1 ? nearestPointOfShip : null;
     }
 
     getAttackAction(target: Vector): Attack {
